@@ -8,7 +8,6 @@ export default async function handler(req, res) {
   const url1 = 'https://gateway.eci.gov.in/api/v1/authn-voter/password-flow';
   const url2 = 'https://gateway.eci.gov.in/api/v1/authn-voter/otp-flow-send';
 
-  // Data for first request (password flow)
   const data1 = JSON.stringify({
     applicationName: 'VHA',
     otp: '',
@@ -17,7 +16,6 @@ export default async function handler(req, res) {
     username: mo,
   });
 
-  // Data for second request (OTP flow)
   const data2 = JSON.stringify({
     applicationName: 'VHA',
     otp: '',
@@ -27,7 +25,6 @@ export default async function handler(req, res) {
   });
 
   try {
-    // First API request (password flow)
     const response1 = await fetch(url1, {
       method: 'POST',
       headers: {
@@ -38,9 +35,14 @@ export default async function handler(req, res) {
       body: data1,
     });
 
+    if (!response1.ok) {
+      const errorText = await response1.text();
+      console.error('Error in password flow:', errorText);
+      return res.status(response1.status).json({ message: 'Error in password flow', details: errorText });
+    }
+
     const json1 = await response1.json();
 
-    // Second API request (OTP flow)
     const response2 = await fetch(url2, {
       method: 'POST',
       headers: {
@@ -51,15 +53,20 @@ export default async function handler(req, res) {
       body: data2,
     });
 
+    if (!response2.ok) {
+      const errorText = await response2.text();
+      console.error('Error in OTP flow:', errorText);
+      return res.status(response2.status).json({ message: 'Error in OTP flow', details: errorText });
+    }
+
     const json2 = await response2.json();
 
-    // Send both responses back to the client
     res.status(200).json({
       passwordFlowResponse: json1,
       otpFlowResponse: json2,
     });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error in API route:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.toString() });
   }
 }
