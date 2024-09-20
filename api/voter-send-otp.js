@@ -7,7 +7,8 @@ export default async function handler(req, res) {
   }
 
   // Get 'mo' and 'pass' from the query string
-  const { mo, pass } = req.query;
+  const { mo } = req.query;
+  const { pass } = req.query;
 
   // First API request to 'password-flow'
   const url = 'https://gateway.eci.gov.in/api/v1/authn-voter/password-flow';
